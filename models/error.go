@@ -5,33 +5,34 @@ import (
 	"strings"
 )
 
-type errorList struct {
-	name   string
+// ErrorList is an error that contains a list of other errors.
+type ErrorList struct {
+	Name   string
 	intent int
-	errs   []error
+	Errs   []error
 }
 
-func (e *errorList) append(err error) {
+func (e *ErrorList) append(err error) {
 	if err == nil {
 		return
 	}
 
-	e.errs = append(e.errs, err)
+	e.Errs = append(e.Errs, err)
 }
 
-func (e *errorList) Error() string {
+func (e ErrorList) Error() string {
 	intent := strings.Repeat(" ", e.intent)
 	var msgs []string
-	for _, err := range e.errs {
+	for _, err := range e.Errs {
 		msgs = append(msgs, fmt.Sprintf("%s* %v", intent, err))
 	}
 	msg := strings.Join(msgs, "\n")
-	if e.name != "" {
-		return fmt.Sprintf("%s:\n%s", e.name, msg)
+	if e.Name != "" {
+		return fmt.Sprintf("%s:\n%s", e.Name, msg)
 	}
 	return msg
 }
 
-func (e *errorList) empty() bool {
-	return len(e.errs) == 0
+func (e *ErrorList) empty() bool {
+	return len(e.Errs) == 0
 }

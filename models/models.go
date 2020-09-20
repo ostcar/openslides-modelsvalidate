@@ -27,43 +27,69 @@ func (m *Model) UnmarshalYAML(node *yaml.Node) error {
 	return node.Decode(&m.Attributes)
 }
 
-type relationValue interface {
-	toCollection() string
+// Relation represents some kind of relation between fields.
+type Relation interface {
+	toCollection() []string
+	toField() ToField
 }
 
 // Attribute is a field of a model.
 type Attribute struct {
 	Type     string
-	relation relationValue
-	template *mValueTemplate
+	relation Relation
+	template *AttributeTemplate
 }
 
-type mValueRelation struct {
-	To mTo `yaml:"to"`
+// Relation returns the relation object if the Attribute is a relation or a
+// template with a relation. In other case, it returns nil.
+func (a *Attribute) Relation() Relation {
+	if a.relation != nil {
+		return a.relation
+	}
+
+	if a.template != nil && a.template.Fields.relation != nil {
+		return a.template.Fields.relation
+	}
+	return nil
 }
 
-func (r mValueRelation) toCollection() string {
+// AttributeRelation is a relation or relation-list field.
+type AttributeRelation struct {
+	To To `yaml:"to"`
+}
+
+func (r AttributeRelation) toCollection() []string {
+	return []string{r.To.Collection}
+}
+
+func (r AttributeRelation) toField() ToField {
+	return r.To.Field
+}
+
+// AttributeGenericRelation is a generic-relation or generic-relation-list fiedl.
+type AttributeGenericRelation struct {
+	To ToGeneric `yaml:"to"`
+}
+
+func (r AttributeGenericRelation) toCollection() []string {
 	return r.To.Collection
 }
 
-type mValueGenericRelation struct {
-	To mToGeneric `yaml:"to"`
+func (r AttributeGenericRelation) toField() ToField {
+	return r.To.Field
 }
 
-func (r mValueGenericRelation) toCollection() string {
-	return "*"
-}
-
-type mValueTemplate struct {
+// AttributeTemplate represents a template field.
+type AttributeTemplate struct {
 	Replacement string    `yaml:"replacement"`
 	Fields      Attribute `yaml:"fields"`
 }
 
 // UnmarshalYAML decodes a model attribute from yaml.
-func (v *Attribute) UnmarshalYAML(value *yaml.Node) error {
+func (a *Attribute) UnmarshalYAML(value *yaml.Node) error {
 	var s string
 	if err := value.Decode(&s); err == nil {
-		v.Type = s
+		a.Type = s
 		return nil
 	}
 
@@ -74,40 +100,42 @@ func (v *Attribute) UnmarshalYAML(value *yaml.Node) error {
 		return fmt.Errorf("field object without type: %w", err)
 	}
 
-	v.Type = typer.Type
+	a.Type = typer.Type
 	switch typer.Type {
 	case "relation":
 		fallthrough
 	case "relation-list":
-		var relation mValueRelation
+		var relation AttributeRelation
 		if err := value.Decode(&relation); err != nil {
 			return fmt.Errorf("invalid object of type %s at line %d object: %w", typer.Type, value.Line, err)
 		}
-		v.relation = &relation
+		a.relation = &relation
 	case "generic-relation":
 		fallthrough
 	case "generic-relation-list":
-		var relation mValueGenericRelation
+		var relation AttributeGenericRelation
 		if err := value.Decode(&relation); err != nil {
 			return fmt.Errorf("invalid object of type %s at line %d object: %w", typer.Type, value.Line, err)
 		}
-		v.relation = &relation
+		a.relation = &relation
 	case "template":
-		var template mValueTemplate
+		var template AttributeTemplate
 		if err := value.Decode(&template); err != nil {
 			return fmt.Errorf("invalid object of type template object in line %d: %w", value.Line, err)
 		}
-		v.template = &template
+		a.template = &template
 	}
 	return nil
 }
 
-type mTo struct {
+// To is shows a Relation where to point to.
+type To struct {
 	Collection string
-	Field      mField
+	Field      ToField
 }
 
-func (t *mTo) UnmarshalYAML(value *yaml.Node) error {
+// UnmarshalYAML decodes the models.yml to a To object.
+func (t *To) UnmarshalYAML(value *yaml.Node) error {
 	var s string
 	if err := value.Decode(&s); err == nil {
 		cf := strings.Split(s, "/")
@@ -120,8 +148,8 @@ func (t *mTo) UnmarshalYAML(value *yaml.Node) error {
 	}
 
 	var d struct {
-		Collection string `yaml:"collection"`
-		Field      mField `yaml:"field"`
+		Collection string  `yaml:"collection"`
+		Field      ToField `yaml:"field"`
 	}
 	if err := value.Decode(&d); err != nil {
 		return fmt.Errorf("decoding to field at line %d: %w", value.Line, err)
@@ -132,17 +160,20 @@ func (t *mTo) UnmarshalYAML(value *yaml.Node) error {
 	return nil
 }
 
-type mToGeneric struct {
+// ToGeneric is like a To object, but for generic relations.
+type ToGeneric struct {
 	Collection []string
-	Field      mField
+	Field      ToField
 }
 
-type mField struct {
+// ToField is the field part of a To object.
+type ToField struct {
 	Name string
 	Type string
 }
 
-func (t *mField) UnmarshalYAML(value *yaml.Node) error {
+// UnmarshalYAML decodes the models.yml to a ToField object.
+func (t *ToField) UnmarshalYAML(value *yaml.Node) error {
 	var s string
 	if err := value.Decode(&s); err == nil {
 		t.Name = s
