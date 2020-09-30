@@ -93,6 +93,7 @@ func scalarTypes() map[string]bool {
 		"boolean",
 		"JSON",
 		"HTML",
+		"HTMLVideo",
 		"float",
 		"decimal(6)",
 		"datetime",
