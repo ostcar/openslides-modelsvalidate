@@ -92,11 +92,11 @@ func scalarTypes() map[string]bool {
 		"number",
 		"boolean",
 		"JSON",
-		"HTML",
-		"HTMLVideo",
+		"HtmlPermissive",
+		"HTMLStrict",
 		"float",
 		"decimal(6)",
-		"datetime",
+		"timestamp",
 	}
 	out := make(map[string]bool)
 	for _, t := range s {
