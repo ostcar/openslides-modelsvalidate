@@ -86,13 +86,15 @@ func validateRelations(models map[string]Model) error {
 	return errs
 }
 
+// scalarTypes are the main types. All scalarTypes can be used as a list.
+// JSON[], timestamp[] etc.
 func scalarTypes() map[string]bool {
 	s := []string{
 		"string",
 		"number",
 		"boolean",
 		"JSON",
-		"HtmlPermissive",
+		"HTMLPermissive",
 		"HTMLStrict",
 		"float",
 		"decimal(6)",
@@ -105,6 +107,7 @@ func scalarTypes() map[string]bool {
 	return out
 }
 
+// specialTypes are realtion types in realtion to other fields.
 func specialTypes() map[string]bool {
 	s := []string{
 		"relation",
