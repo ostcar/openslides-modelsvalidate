@@ -1,20 +1,22 @@
-package models
+package check
 
 import (
 	"fmt"
 	"strings"
+
+	models "github.com/OpenSlides/openslides-models-to-go"
 )
 
 // Check runs some checks on the given models.
-func Check(models map[string]Model) error {
-	validators := []func(map[string]Model) error{
+func Check(data map[string]models.Model) error {
+	validators := []func(map[string]models.Model) error{
 		validateTypes,
 		validateRelations,
 	}
 
 	errors := new(ErrorList)
 	for _, v := range validators {
-		if err := v(models); err != nil {
+		if err := v(data); err != nil {
 			errors.append(err)
 		}
 	}
@@ -25,7 +27,7 @@ func Check(models map[string]Model) error {
 	return nil
 }
 
-func validateTypes(models map[string]Model) error {
+func validateTypes(models map[string]models.Model) error {
 	scalar := scalarTypes()
 	special := specialTypes()
 	errs := &ErrorList{
@@ -51,7 +53,7 @@ func validateTypes(models map[string]Model) error {
 	return errs
 }
 
-func validateRelations(models map[string]Model) error {
+func validateRelations(models map[string]models.Model) error {
 	errs := &ErrorList{
 		Name:   "relation validator",
 		intent: 1,
@@ -64,15 +66,15 @@ func validateRelations(models map[string]Model) error {
 				continue
 			}
 
-			for _, c := range r.toCollection() {
+			for _, c := range r.ToCollection() {
 				toModel, ok := models[c]
 				if !ok {
 					errs.append(fmt.Errorf("%s/%s directs to nonexisting model `%s`", modelName, attrName, c))
 					continue Next
 				}
-				_, ok = toModel.Attributes[r.toField().Name]
+				_, ok = toModel.Attributes[r.ToField().Name]
 				if !ok {
-					errs.append(fmt.Errorf("%s/%s directs to nonexisting modelfield `%s/%s`", modelName, attrName, c, r.toField().Name))
+					errs.append(fmt.Errorf("%s/%s directs to nonexisting modelfield `%s/%s`", modelName, attrName, c, r.ToField().Name))
 					continue Next
 				}
 

@@ -1,3 +1,8 @@
+github.com/OpenSlides/openslides-models-to-go v0.0.0-20201014144520-3ab9f69f55dc h1:gHk+LOT2Cv0EBEO2WaJHh+U0V4NYtAFxVB1eEgZtEZc=
+github.com/OpenSlides/openslides-models-to-go v0.0.0-20201014144520-3ab9f69f55dc/go.mod h1:qTqSOOz3fFyVT1pSCLh/4K/Mt0HTbjTZ8AC0GQ5/UN8=
+github.com/OpenSlides/openslides-models-to-go v0.1.0 h1:dlkNUc0xI2Z5UrsuiVZuNMy9ksLwtR9HzJ+hiJsZ7+k=
+github.com/OpenSlides/openslides-models-to-go v0.1.0/go.mod h1:qTqSOOz3fFyVT1pSCLh/4K/Mt0HTbjTZ8AC0GQ5/UN8=
+github.com/OpenSlides/openslides-modelsvalidate v0.1.2/go.mod h1:l1nWrqkRmnJAJRTVaH/Rl4txzxnqiNxV2jAFvoMmTh0=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 h1:tQIYjPdBoyREyB9XMu+nnTclpTYkz2zFM+lzLJFO4gQ=
 gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
